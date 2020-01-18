@@ -16,6 +16,9 @@ repositories {
 }
 
 dependencies {
+    // Here's where the X509 Certificate Lookup SPI is defined
+    implementation("org.keycloak:keycloak-services:8.0.1")
+
     // Use the Kotlin JDK 8 standard library.
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
