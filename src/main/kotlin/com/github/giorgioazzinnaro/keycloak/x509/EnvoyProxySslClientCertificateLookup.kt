@@ -5,6 +5,7 @@ import org.jboss.resteasy.spi.HttpRequest
 import org.keycloak.common.util.PemUtils
 import org.keycloak.services.x509.X509ClientCertificateLookup
 import java.lang.IllegalArgumentException
+import java.net.URLDecoder
 import java.security.cert.X509Certificate
 
 /**
@@ -40,7 +41,12 @@ open class EnvoyProxySslClientCertificateLookup(certificateChainLength: Int) : X
         if (rawChain.isNullOrEmpty()) {
             logger.warnf("Chain could not be extracted from `%s`", HEADER)
         }
-        
+
+        val decodedChain = decodeRawChain(rawChain.orEmpty())
+
+        val certChainPemBlocks = stringChainToPemBlocks(decodedChain)
+
+        return decodePemBlocks(certChainPemBlocks).toTypedArray()
     }
 
     /**
@@ -62,6 +68,38 @@ open class EnvoyProxySslClientCertificateLookup(certificateChainLength: Int) : X
                 .map { it[0] to it[1] }
                 .toMap()
                 .get("Chain")
+    }
+
+    /**
+     * Here we sanitize the input,
+     * removing possible double quotes around the input and URL-decoding
+     */
+    private fun decodeRawChain(rawChain: String): String {
+        return rawChain
+                .trim('"')
+                .let { URLDecoder.decode(it, Charsets.UTF_8) }
+    }
+
+    /**
+     * We take a string which represents a chain of certificates and return a list of strings
+     * where each string is a single certificate
+     */
+    private fun stringChainToPemBlocks(chain: String): List<String> {
+
+        val indexes = mutableListOf<Int>()
+
+        var lastIndex = 0
+        while (lastIndex != -1) {
+            indexes.add(lastIndex)
+            lastIndex = chain.indexOf("-----BEGIN CERTIFICATE-----", lastIndex + 1)
+        }
+        indexes.add(chain.length)
+
+        return indexes.zipWithNext { a, b -> chain.substring(a, b) }
+    }
+
+    private fun decodePemBlocks(blocks: List<String>): List<X509Certificate> {
+        return blocks.map { PemUtils.decodeCertificate(it) }
     }
 
 }
