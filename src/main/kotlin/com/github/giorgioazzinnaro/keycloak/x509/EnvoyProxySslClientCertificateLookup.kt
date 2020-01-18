@@ -32,17 +32,13 @@ import java.security.cert.X509Certificate
  * @author <a href="mailto:giorgio.azzinnaro@gmail.com">Giorgio Azzinnaro</a>
  * @since 2020-01-18
  */
-open class EnvoyProxySslClientCertificateLookup(certificateChainLength: Int) : X509ClientCertificateLookup {
+open class EnvoyProxySslClientCertificateLookup : X509ClientCertificateLookup {
 
     protected val logger: Logger = Logger.getLogger(javaClass)
 
     private val HEADER = "x-forwarded-client-cert"
 
-    init {
-        if (certificateChainLength < 0) {
-            throw IllegalArgumentException("certificateChainLength must be greater or equal to zero")
-        }
-    }
+    override fun close() { }
 
     /**
      * Here we can get the header `x-forwarded-client-cert` which has a `;` separated list of values,

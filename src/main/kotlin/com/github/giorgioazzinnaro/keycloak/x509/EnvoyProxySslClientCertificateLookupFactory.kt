@@ -34,23 +34,17 @@ open class EnvoyProxySslClientCertificateLookupFactory : X509ClientCertificateLo
     protected val logger: Logger = Logger.getLogger(javaClass)
 
     override fun getId(): String {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return "envoy";
     }
 
     override fun create(session: KeycloakSession?): X509ClientCertificateLookup {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return EnvoyProxySslClientCertificateLookup()
     }
 
-    override fun postInit(factory: KeycloakSessionFactory?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun init(config: Config.Scope?) { }
 
-    override fun init(config: Config.Scope?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun postInit(factory: KeycloakSessionFactory?) { }
 
-    override fun close() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun close() { }
 
 }
